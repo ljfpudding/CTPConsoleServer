@@ -12,7 +12,7 @@ using namespace std;
 HANDLE hEndEvent = NULL;
 
 
-int main(int argc, char *argv[])
+int _tmain(int argc, char *argv[])
 {		
 	_stscanf_s(GetCommandLine(), _T("%x"), &hEndEvent);
 
