@@ -205,7 +205,7 @@ unsigned int __stdcall fetchMDThreadProc(void * data)
 		GetCurTimeStr(strCurtime);
 		LOG("102 %s: \fetchMDThreadProc , hMDThreadToStartSignalReady WAIT_TIMEOUT  \n", strCurtime.c_str());
 
-		WaitForSingleObject(CloseSignalReady, INFINITE);
+		WaitForSingleObject(hEndEvent, INFINITE);
 
 		pUserMdApi->Release();
 		_endthreadex(0);
@@ -227,8 +227,11 @@ unsigned int __stdcall fetchMDThreadProc(void * data)
 
 	//fireOnEightFiftyeightThirtySeconds(&ash);
 
-	WaitForSingleObject(CloseSignalReady, INFINITE);
+	WaitForSingleObject(hEndEvent, INFINITE);
 	pUserMdApi->Release();
+
+	GetCurTimeStr(strCurtime);
+	LOG("%s:  \fetchMDThreadProc End.\n", strCurtime.c_str());
 
 
 	_endthreadex(0);
@@ -414,7 +417,7 @@ void writeTickDataCSVFile()
 	string strCurtime;
 	GetCurTimeStr(strCurtime);
 	LOG("15 %s: \writeTickDataCSVFile  start\n", strCurtime.c_str());
-	while (WaitForSingleObject(CloseSignalReady, 0) != WAIT_OBJECT_0)//设置CloseSignalReady信号，线程退出
+	while (WaitForSingleObject(hEndEvent, 0) != WAIT_OBJECT_0)//设置CloseSignalReady信号，线程退出
 	{		
 		map<string, string>::iterator itor;
 		struct CMDTickdata structTickData;
@@ -745,7 +748,7 @@ unsigned int __stdcall writeDataThreadProc(void * data)
 		GetCurTimeStr(strCurtime);
 		LOG("103 %s: \writeDataThreadProc writeFileNameSignalReady WAIT_TIMEOUT \n", strCurtime.c_str());
 
-		WaitForSingleObject(CloseSignalReady, INFINITE);
+		WaitForSingleObject(hEndEvent, INFINITE);
 		_endthreadex(0);
 		return 0;
 	}
@@ -781,6 +784,8 @@ unsigned int __stdcall writeDataThreadProc(void * data)
 
 	*/
 
+	GetCurTimeStr(strCurtime);
+	LOG("%s:  \writeDataThreadProc End.\n", strCurtime.c_str());
 
 	_endthreadex(0);
 	return 0;
@@ -819,7 +824,7 @@ unsigned int __stdcall CalculateAndAnalysisThreadProc(void * data)
 	if (::WaitForSingleObject(ReceiveDepDataSignalReady, 1000 * 60*10) == WAIT_TIMEOUT)//超时一分钟，针对服务器没有开的情况
 	{
 		LOG("107  \CalculateAndAnalysisThreadProc ReceiveDepDataSignalReady WAIT_TIMEOUT\n");
-		WaitForSingleObject(CloseSignalReady, INFINITE);
+		WaitForSingleObject(hEndEvent, INFINITE);
 		_endthreadex(0);
 		return 0;
 	}
@@ -827,7 +832,7 @@ unsigned int __stdcall CalculateAndAnalysisThreadProc(void * data)
 	//string strCurtime;
 	GetCurTimeStr(strCurtime);
 	LOG("18 %s:  \CalculateAndAnalysisThreadProc  start to copy queue to write queue\n", strCurtime.c_str());
-	while (WaitForSingleObject(CloseSignalReady, 0)!= WAIT_OBJECT_0)//设置CloseSignalReady信号，线程退出
+	while (WaitForSingleObject(hEndEvent, 0)!= WAIT_OBJECT_0)//设置CloseSignalReady信号，线程退出
 	{		
 		MDTICKDATA	structTickData;
 		while (tickDataQueue.try_dequeue(structTickData))
@@ -1230,7 +1235,7 @@ unsigned int __stdcall TradeThreadProc(void * data)
 		GetCurTimeStr(strCurtime);
 		LOG("100 %s: \TradeThreadProc hTraderConnectSignalReady WAIT_TIMEOUT \n", strCurtime.c_str());
 
-		WaitForSingleObject(CloseSignalReady, INFINITE);
+		WaitForSingleObject(hEndEvent, INFINITE);
 
 		pUserApi->Release();
 		_endthreadex(0);
@@ -1246,8 +1251,13 @@ unsigned int __stdcall TradeThreadProc(void * data)
 	sh.ReqQryInstrument();
 
 
-	WaitForSingleObject(CloseSignalReady, INFINITE);
+	WaitForSingleObject(hEndEvent, INFINITE);
 	pUserApi->Release();
+
+	
+	GetCurTimeStr(strCurtime);	
+	LOG("%s:  \TradeThreadProc End.\n", strCurtime.c_str());
+
 	_endthreadex(0);
 	return 0;
 

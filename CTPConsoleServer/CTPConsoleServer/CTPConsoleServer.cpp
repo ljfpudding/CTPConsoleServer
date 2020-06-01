@@ -9,10 +9,11 @@
 
 using namespace std;
 
+HANDLE hEndEvent = NULL;
+
+
 int main(int argc, char *argv[])
-{
-		
-	HANDLE hEndEvent = NULL;
+{		
 	_stscanf_s(GetCommandLine(), _T("%x"), &hEndEvent);
 
 	TCHAR ch[300] = { 0 };
@@ -67,17 +68,24 @@ int main(int argc, char *argv[])
 	LOG("2 %s:  \targetpath [%s]\n", strCurtime.c_str(), targetpath);
 
 
+	HANDLE hThread[4] = { NULL };
 
-	hTradeThreadProc = (HANDLE)_beginthreadex(NULL, 0, &TradeThreadProc, 0, 0, NULL);
+	hThread[0]=hTradeThreadProc = (HANDLE)_beginthreadex(NULL, 0, &TradeThreadProc, 0, 0, NULL);
 	Sleep(2);
-	hFetchMD = (HANDLE)_beginthreadex(NULL, 0, &fetchMDThreadProc, 0, 0, NULL);
+	hThread[1]=hFetchMD = (HANDLE)_beginthreadex(NULL, 0, &fetchMDThreadProc, 0, 0, NULL);
 	Sleep(2);
-	hWriteData = (HANDLE)_beginthreadex(NULL, 0, &writeDataThreadProc, 0, 0, NULL);
+	hThread[2]=hWriteData = (HANDLE)_beginthreadex(NULL, 0, &writeDataThreadProc, 0, 0, NULL);
 	Sleep(2);
-	hCalAnalysis = (HANDLE)_beginthreadex(NULL, 0, &CalculateAndAnalysisThreadProc, 0, 0, NULL);
+	hThread[3]=hCalAnalysis = (HANDLE)_beginthreadex(NULL, 0, &CalculateAndAnalysisThreadProc, 0, 0, NULL);
 
 
-	WaitForSingleObject(hEndEvent, INFINITE);
+	//WaitForSingleObject(hEndEvent, INFINITE);
+
+	WaitForMultipleObjects(4, hThread, TRUE, INFINITE);
+
+	GetCurTimeStr(strCurtime);
+	LOG("%s: \main  end\n", strCurtime.c_str());
+
     return 0;
 }
 

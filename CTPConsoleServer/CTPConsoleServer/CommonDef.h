@@ -279,3 +279,5 @@ enum CTPTimerEnum
 
 extern void GetCurTimeStr(string &strTime);
 
+extern HANDLE hEndEvent;
+
